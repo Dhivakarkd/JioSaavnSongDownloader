@@ -11,10 +11,13 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
 
-        String link = "https://www.jiosaavn.com/song/arabic-kuthu-from-beast/PhEOejlpQXE";
+        String link = "https://www.jiosaavn.com/song/manasellam-mazhaiye/ChJdeA5JXEQ";
 
 
         String id = extractIdFromLink(link);
+
+
+        System.out.println(id);
 
 
 
