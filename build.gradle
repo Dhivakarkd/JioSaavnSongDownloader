@@ -25,13 +25,21 @@ dependencies {
     // For Handling Strings
     implementation 'org.apache.commons:commons-lang3:3.12.0'
 
+    // For Handling File Operations
+    implementation 'commons-io:commons-io:2.11.0'
+
+    // For Adding Meta Data to Audio files
+    implementation 'org:jaudiotagger:2.0.3'
+
+
     // For Reducing boiler Plate Code
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
     testCompileOnly 'org.projectlombok:lombok:1.18.22'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
 
-
+    // For Logging
+    implementation 'ch.qos.logback:logback-classic:1.2.10'
 
 
 

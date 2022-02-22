@@ -1,81 +1,70 @@
 package com.dhivakar.jiosaavnsongdownloader;
 
-import com.dhivakar.jiosaavnsongdownloader.constants.UrlConstants;
-import com.dhivakar.jiosaavnsongdownloader.helper.UrlHelper;
+import com.dhivakar.jiosaavnsongdownloader.helper.ApiHelper;
 import com.dhivakar.jiosaavnsongdownloader.model.SongModel;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.mp3.MP3AudioHeader;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
+import org.jaudiotagger.tag.datatype.Artwork;
+import org.jaudiotagger.tag.id3.ID3v24Tag;
 
-import java.io.IOException;
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
+@Slf4j
 public class Main {
 
     public static void main(String[] args) throws Exception {
 
 
-        UrlConstants constants = new UrlConstants();
-
-
         String link = "https://www.jiosaavn.com/song/manasellam-mazhaiye/ChJdeA5JXEQ";
 
 
-        String id = UrlHelper.extractIdFromLink(link);
+        SongModel model = ApiHelper.getSongModel(link);
 
 
-        System.out.println(id);
+        log.debug("Retrieved Meta Data from Api : {}", model);
 
-        String requesturl = constants.getSongFromID(id);
+        Path imagePath = Paths.get(model.defaultImageFilePath());
 
-        System.out.println(requesturl);
+        try (InputStream in = new URL(model.generateImageUrl()).openStream()) {
 
-        String input = sendGet(requesturl);
-
-        int n= StringUtils.ordinalIndexOf(input,"{",2);
-
-        String in1 = StringUtils.chop(StringUtils.overlay(input,"",0,n));
-
-
-        System.out.println(in1);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        SongModel model = objectMapper.readValue(in1,SongModel.class);
-
-
-        System.out.println(model);
-
-
-
-    }
-
-    private static String sendGet(String query) throws IOException {
-        // one instance, reuse
-        final CloseableHttpClient httpClient = HttpClients.createDefault();
-
-        HttpGet request = new HttpGet(query);
-
-
-        try (CloseableHttpResponse response = httpClient.execute(request)) {
-
-            // Get HttpResponse Status
-            System.out.println(response.getStatusLine().toString());
-
-            HttpEntity entity = response.getEntity();
-            Header headers = entity.getContentType();
-            System.out.println(headers);
-
-
-            // return it as a String
-            return EntityUtils.toString(entity);
-
+            Files.copy(in, imagePath);
 
         }
+
+        File audioFile = new File(model.defaultSongFilePath());
+
+        FileUtils.copyURLToFile(
+                new URL(model.generateMediaUrl()),
+                audioFile);
+
+
+
+
+        AudioFile audioMetaFile = AudioFileIO.read(audioFile);
+
+        Tag audioTag = audioMetaFile.getTag();
+
+        audioTag.setField(Artwork.createArtworkFromFile(imagePath.toFile()));
+        audioTag.setField(FieldKey.ALBUM, model.getAlbum());
+        audioTag.setField(FieldKey.TITLE, model.getSong());
+        audioTag.setField(FieldKey.ARTIST, model.getSingers());
+        audioTag.setField(FieldKey.LANGUAGE, model.getLanguage());
+        audioTag.setField(FieldKey.COMPOSER,model.getMusic());
+        audioTag.setField(FieldKey.YEAR, model.getYear());
+
+        AudioFileIO.write(audioMetaFile);
+
+        //ffmpeg -i .mp4 -b:a 320K -vn .mp3
 
     }
 
