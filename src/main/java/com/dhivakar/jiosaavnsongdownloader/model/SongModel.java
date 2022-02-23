@@ -21,6 +21,9 @@ public class SongModel {
     private String media_preview_url;
     private String release_date;
 
+    public void setSong(String song) {
+        this.song = StringUtils.replace(song, "&quot;", "");
+    }
 
     public String generateImageUrl() {
         return StringUtils.replace(image, "150x150", "500x500");
@@ -36,7 +39,7 @@ public class SongModel {
     }
 
     public String defaultSongFilePath() {
-        String fileName = song.replace(" ","_");
+        String fileName = song.replace(" ", "_");
         return FileConstants.DEFAULTSONGFOLDERNAME.replace("$name$", fileName);
     }
 }
