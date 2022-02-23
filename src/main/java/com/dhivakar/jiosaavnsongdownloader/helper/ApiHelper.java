@@ -3,8 +3,8 @@ package com.dhivakar.jiosaavnsongdownloader.helper;
 import com.dhivakar.jiosaavnsongdownloader.constants.UrlConstants;
 import com.dhivakar.jiosaavnsongdownloader.model.SongModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -14,30 +14,35 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 
+@Slf4j
 public class ApiHelper {
+
     public static SongModel getSongModel(String link) throws IOException {
 
         UrlConstants constants = new UrlConstants();
 
         String id = UrlHelper.extractIdFromLink(link);
 
+        String requestUrl = constants.getSongFromID(id);
 
-        String requesturl = constants.getSongFromID(id);
+        log.info("Song ID : {}  Fetched From the Link ", id);
 
 
-        String input = sendGet(requesturl);
+        String input = sendGet(requestUrl);
 
-        int n = StringUtils.ordinalIndexOf(input, "{", 2);
+        log.info("Fetching Song Details using the Link -> {}", requestUrl);
 
-        String in1 = StringUtils.chop(StringUtils.overlay(input, "", 0, n));
+        int index = StringUtils.ordinalIndexOf(input, "{", 2);
+
+        String refactoredJsonString = StringUtils.chop(StringUtils.overlay(input, "", 0, index));
 
 
         ObjectMapper objectMapper = new ObjectMapper();
-        SongModel model = objectMapper.readValue(in1, SongModel.class);
-        return model;
+
+        return objectMapper.readValue(refactoredJsonString, SongModel.class);
     }
 
-    public static String sendGet(String query) throws IOException {
+    private static String sendGet(String query) throws IOException {
         // one instance, reuse
         final CloseableHttpClient httpClient = HttpClients.createDefault();
 
@@ -48,7 +53,6 @@ public class ApiHelper {
 
             // Get HttpResponse Status
             HttpEntity entity = response.getEntity();
-            Header headers = entity.getContentType();
 
             // return it as a String
             return EntityUtils.toString(entity);
