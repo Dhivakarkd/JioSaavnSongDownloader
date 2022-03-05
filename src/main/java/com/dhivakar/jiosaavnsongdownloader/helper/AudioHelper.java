@@ -13,8 +13,10 @@ import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
 import org.jaudiotagger.tag.datatype.Artwork;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 @Slf4j
 public class AudioHelper {
@@ -36,4 +38,59 @@ public class AudioHelper {
 
         log.info("Audio MetaData Written to file Successfully");
     }
+
+
+    public static void convertFileToMp3(String fileName) {
+
+        log.info("Started Converting File  to MP3: {}",fileName);
+
+        ProcessBuilder processBuilder = new ProcessBuilder();
+
+        String conversionCommandTemplate = "/usr/bin/ffmpeg -i $fileName.mp4 -b:a 320K -vn $fileName.mp3";
+
+        String conversionCommand = conversionCommandTemplate.replace("$fileName", fileName);
+
+
+        // Run a shell command
+        processBuilder.command("bash", "-c", conversionCommand);
+        processBuilder.directory(new File("TempDir"));
+
+
+        try {
+
+            Process process = processBuilder.start();
+
+            StringBuilder output = new StringBuilder();
+
+
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append("\n");
+            }
+
+            int exitVal = process.waitFor();
+            if (exitVal == 0) {
+
+                log.debug("Console Output :\n {}", output);
+
+                log.info("File : {}.mp4 converted to Mp3 Successfully", fileName);
+
+            } else {
+                //abnormal...
+                log.error("CommandLine Runner return exitVal as {}", exitVal);
+            }
+
+        } catch (IOException e) {
+            log.error("Error Occurred While Converting MP4 to MP3 due to ", e);
+        } catch (InterruptedException e) {
+            log.warn("Interrupted Exception Due to ",e);
+            // Restore interrupted state...
+            Thread.currentThread().interrupt();
+        }
+    }
+
+
 }
