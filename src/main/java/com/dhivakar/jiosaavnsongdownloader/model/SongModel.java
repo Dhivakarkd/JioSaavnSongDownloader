@@ -39,7 +39,14 @@ public class SongModel {
     }
 
     public String defaultSongFilePath() {
-        String fileName = song.replace(" ", "_");
+        String fileName = getSongName();
         return FileConstants.DEFAULTSONGFOLDERNAME.replace("$name$", fileName);
+    }
+    public String defaultDownloadFilePath() {
+        String fileName = getSongName();
+        return FileConstants.DEFAULTDOWNLOADFOLDERNAME.replace("$name$", fileName);
+    }
+    public String getSongName(){
+        return song.replace(" ", "_");
     }
 }

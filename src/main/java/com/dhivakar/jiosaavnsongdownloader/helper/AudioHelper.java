@@ -2,10 +2,6 @@ package com.dhivakar.jiosaavnsongdownloader.helper;
 
 import com.dhivakar.jiosaavnsongdownloader.model.SongModel;
 import lombok.extern.slf4j.Slf4j;
-import net.bramp.ffmpeg.FFmpeg;
-import net.bramp.ffmpeg.FFmpegExecutor;
-import net.bramp.ffmpeg.FFprobe;
-import net.bramp.ffmpeg.builder.FFmpegBuilder;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
@@ -46,15 +42,17 @@ public class AudioHelper {
 
     public static void convertFileToMp3(String fileName) {
 
+        log.info("Started Converting File  to MP3: {}",fileName);
+
         ProcessBuilder processBuilder = new ProcessBuilder();
 
-        String convertionCommandTemplate = "/usr/bin/ffmpeg -i $fileName.mp4 -b:a 320K -vn $fileName.mp3";
+        String conversionCommandTemplate = "/usr/bin/ffmpeg -i $fileName.mp4 -b:a 320K -vn $fileName.mp3";
 
-        String convertionCommand = convertionCommandTemplate.replace("$fileName",fileName);
+        String conversionCommand = conversionCommandTemplate.replace("$fileName", fileName);
 
 
         // Run a shell command
-        processBuilder.command("bash", "-c", convertionCommand);
+        processBuilder.command("bash", "-c", conversionCommand);
         processBuilder.directory(new File("TempDir"));
 
 
@@ -75,17 +73,22 @@ public class AudioHelper {
 
             int exitVal = process.waitFor();
             if (exitVal == 0) {
-                System.out.println("Success!");
-                System.out.println(output);
+
+                log.debug("Console Output :\n {}", output);
+
+                log.info("File : {}.mp4 converted to Mp3 Successfully", fileName);
 
             } else {
                 //abnormal...
+                log.error("CommandLine Runner return exitVal as {}", exitVal);
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Error Occurred While Converting MP4 to MP3 due to ", e);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.warn("Interrupted Exception Due to ",e);
+            // Restore interrupted state...
+            Thread.currentThread().interrupt();
         }
     }
 

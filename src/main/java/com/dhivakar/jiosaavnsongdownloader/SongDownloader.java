@@ -52,13 +52,16 @@ public class SongDownloader {
             log.info("Retrieved Meta Data from Api : {}", model);
 
 
-            File audioFile = new File(model.defaultSongFilePath());
+            File audioFile = new File(model.defaultDownloadFilePath());
 
 
             FileHelper.downloadFiles(model, audioFile);
 
+            AudioHelper.convertFileToMp3(model.getSongName());
 
-            AudioHelper.writeMetaDataToAudioFile(model, audioFile);
+            File downloadedFile = new File(model.defaultSongFilePath());
+
+            AudioHelper.writeMetaDataToAudioFile(model, downloadedFile);
 
         } catch (IOException | CannotWriteException | TagException | ReadOnlyFileException | InvalidAudioFrameException | CannotReadException e) {
             log.error("Exception Occurred during Song download due to : ", e);

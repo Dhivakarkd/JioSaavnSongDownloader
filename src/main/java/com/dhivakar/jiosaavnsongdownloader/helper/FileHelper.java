@@ -19,7 +19,7 @@ public class FileHelper {
 
         try {
             log.info("Cleaning Files in Directory");
-            FileUtils.cleanDirectory(new File(FileConstants.DEFAULTFOLDERNAME));
+            FileUtils.cleanDirectory(new File(FileConstants.DEFAULTFOLDERPATH));
         } catch (IOException e) {
             log.error("Error Occurred While Cleaning Directory due to ", e);
         }
