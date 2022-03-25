@@ -47,6 +47,12 @@ public class SongModel {
         return FileConstants.DEFAULTDOWNLOADFOLDERNAME.replace("$name$", fileName);
     }
     public String getSongName(){
-        return song.replace(" ", "_");
+        int index = StringUtils.indexOf(song,"(From");
+
+        if(index == -1) {
+            return song.replace(" ", "_");
+        }else{
+            return StringUtils.substring(song,0,index).trim().replace(" ","_");
+        }
     }
 }
