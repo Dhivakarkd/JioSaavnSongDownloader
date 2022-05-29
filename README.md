@@ -1,3 +1,3 @@
-# JioSaavnSongDownloader
+# JioSaavn Song Downloader
 
-JioSaavn SongDownloader is an automation library created using Java that allows users to automatically download music from JioSaavn with the help of song url
+JioSaavn Song Downloader is an automation library created using Java that allows users to automatically download music from JioSaavn with the help of song url
