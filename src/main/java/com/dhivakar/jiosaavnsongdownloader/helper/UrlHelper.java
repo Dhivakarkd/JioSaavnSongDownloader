@@ -10,8 +10,9 @@ public class UrlHelper {
     public static String extractIdFromLink(String link) throws IOException {
         Document doc = Jsoup.connect(link).get();
 
-
-        return doc.html().split("\"song\":\\{\"type\":\"")[1].split(",\"image\":")[0]
-                .split("\"")[8];
+        return doc.html().split("\"pid\":\"")[1].split("\",\"")[0];
+        //TODO : Temp Fix
+       /* return doc.html().split("\"song\":\\{\"type\":\"")[1].split(",\"image\":")[0]
+                .split("\"")[8];*/
     }
 }
